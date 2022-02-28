@@ -1,26 +1,34 @@
 using EmailAPI.Models;
+using EmailAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmailAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class EmailController
-    {
-        private static List<Email> emails = new List<Email>();
+    public class EmailController :ControllerBase
+    { 
+        private readonly IMailService mailService;
 
-        [HttpPost]
-        public void AddEmail([FromBody] Email email)
+        public EmailController(IMailService mailService)
+
         {
-            emails.Add(email);
-            Console.WriteLine(email.To + " recebemos - "+  email.Message);
+            this.mailService = mailService; 
         }
 
-        [HttpGet]
-        public void GetEmails()
+        [HttpPost("send")]
+        public async Task<IActionResult> SendMail([FromForm] MailRequest request)
         {
-            Console.WriteLine( " recebemos - ");
+            try
+            {
+                await mailService.SendEmailAsync(request);
+                return Ok();
+            }catch (Exception ex)
+            {
+                throw;
+            }
         }
+ 
 
     }
 }
